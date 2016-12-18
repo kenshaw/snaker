@@ -11,57 +11,6 @@ import (
 	"unicode"
 )
 
-const (
-	// minInitialismLen is the min length of any of the commonInitialisms
-	// below.
-	minInitialismLen = 2
-
-	// maxInitialismLen is the max length of any of the commonInitialisms
-	// below.
-	maxInitialismLen = 5
-)
-
-// min returns the minimum of a, b.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-
-	return b
-}
-
-// nextInitialism returns the next longest possible initialism in rs.
-func peekInitialism(rs []rune) string {
-	// do no work
-	if len(rs) < minInitialismLen {
-		return ""
-	}
-
-	// grab at most next maxInitialismLen uppercase characters
-	l := min(len(rs), maxInitialismLen)
-	var z []rune
-	for i := 0; i < l; i++ {
-		if !unicode.IsUpper(rs[i]) {
-			break
-		}
-		z = append(z, rs[i])
-	}
-
-	// bail if next few characters were not uppercase.
-	if len(z) < minInitialismLen {
-		return ""
-	}
-
-	// determine if common initialism
-	for i := min(maxInitialismLen, len(z)); i >= minInitialismLen; i-- {
-		if r := string(z[:i]); commonInitialisms[r] {
-			return r
-		}
-	}
-
-	return ""
-}
-
 // CamelToSnake converts s to snake_case.
 func CamelToSnake(s string) string {
 	if s == "" {
@@ -119,4 +68,29 @@ func SnakeToCamel(s string) string {
 	}
 
 	return r
+}
+
+// SnakeToGoIdentifier converts s into a Go safe identifier (first letter will
+// be capitalized).
+func SnakeToGoIdentifier(s string) string {
+	// replace bad chars with _
+	s = replaceBadChars(s)
+
+	// fix 2 or more __
+	s = underscoreRE.ReplaceAllString(s, "_")
+
+	// remove leading/trailing underscores
+	s = strings.TrimLeft(s, "_")
+	s = strings.TrimRight(s, "_")
+
+	// convert to camel
+	s = SnakeToCamel(s)
+
+	// remove leading numbers
+	s = numberRE.ReplaceAllString(s, "_")
+	if s == "" {
+		s = "_"
+	}
+
+	return s
 }

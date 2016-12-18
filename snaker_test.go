@@ -42,7 +42,7 @@ func TestCamelToSnake(t *testing.T) {
 	for i, test := range tests {
 		v := CamelToSnake(test.s)
 		if v != test.exp {
-			t.Errorf("test %d '%s' expected %s, got: %s", i, test.s, test.exp, v)
+			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
 }
@@ -65,13 +65,59 @@ func TestSnakeToCamel(t *testing.T) {
 		{"_acl_", "ACL"},
 		{"_a_c_l_", "ACL"},
 		{"gpu_info", "GpuInfo"},
+		{"GPU_info", "GpuInfo"},
+		{"gPU_info", "GpuInfo"},
 		{"g_p_u_info", "GPUInfo"},
 	}
 
 	for i, test := range tests {
 		v := SnakeToCamel(test.s)
 		if v != test.exp {
-			t.Errorf("test %d '%s' expected %s, got: %s", i, test.s, test.exp, v)
+			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
+		}
+	}
+}
+
+func TestSnakeToGoIdentifier(t *testing.T) {
+	var tests = []struct {
+		s, exp string
+	}{
+		{"", "_"},
+		{"_", "_"},
+		{"0", "_"},
+		{"000", "_"},
+		{"_000", "_"},
+		{"_000", "_"},
+		{"000_", "_"},
+		{"_000_", "_"},
+		{"A0", "A0"},
+		{"a_0", "A0"},
+		{"a-0", "A0"},
+		{"x_", "X"},
+		{"_x", "X"},
+		{"_x_", "X"},
+		{"a_really_long_name", "AReallyLongName"},
+		{"_a_really_long_name", "AReallyLongName"},
+		{"a_really_long_name_", "AReallyLongName"},
+		{"_a_really_long_name_", "AReallyLongName"},
+		{"something_id", "SomethingID"},
+		{"something-id", "SomethingID"},
+		{"-something-id", "SomethingID"},
+		{"something-id-", "SomethingID"},
+		{"-something-id-", "SomethingID"},
+		{"acl", "ACL"},
+		{"acl_", "ACL"},
+		{"_acl", "ACL"},
+		{"_acl_", "ACL"},
+		{"_a_c_l_", "ACL"},
+		{"gpu_info", "GpuInfo"},
+		{"g_p_u_info", "GPUInfo"},
+	}
+
+	for i, test := range tests {
+		v := SnakeToGoIdentifier(test.s)
+		if v != test.exp {
+			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
 }
