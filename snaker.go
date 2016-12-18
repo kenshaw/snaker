@@ -7,6 +7,7 @@ package snaker
 //go:generate ./gen.sh --update
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -38,11 +39,11 @@ func CamelToSnake(s string) string {
 			next = string(rs[i])
 		}
 
+		// save for next iteration
 		lastWasIsm = false
 		if len(next) > 1 {
 			lastWasIsm = true
 		}
-
 		lastWasUpper = isUpper
 		lastWasLetter = isLetter
 
@@ -82,4 +83,16 @@ func SnakeToCamel(s string) string {
 // letter is capitalized).
 func SnakeToCamelIdentifier(s string) string {
 	return SnakeToCamel(toIdentifier(s))
+}
+
+// AddInitialisms adds initialisms to the recognized initialisms.
+func AddInitialisms(initialisms ...string) error {
+	for _, s := range initialisms {
+		if len(s) < minInitialismLen || len(s) > maxInitialismLen {
+			return fmt.Errorf("%s does not have length between %d and %d", s, minInitialismLen, maxInitialismLen)
+		}
+		commonInitialisms[s] = true
+	}
+
+	return nil
 }
