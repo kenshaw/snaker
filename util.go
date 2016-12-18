@@ -7,12 +7,10 @@ import (
 )
 
 const (
-	// minInitialismLen is the min length of any of the commonInitialisms
-	// below.
+	// minInitialismLen is the min length of any of the commonInitialisms.
 	minInitialismLen = 2
 
-	// maxInitialismLen is the max length of any of the commonInitialisms
-	// below.
+	// maxInitialismLen is the max length of any of the commonInitialisms.
 	maxInitialismLen = 5
 )
 
@@ -25,7 +23,7 @@ func min(a, b int) int {
 	return b
 }
 
-// nextInitialism returns the next longest possible initialism in rs.
+// peekInitialism returns the next longest possible initialism in rs.
 func peekInitialism(rs []rune) string {
 	// do no work
 	if len(rs) < minInitialismLen {
