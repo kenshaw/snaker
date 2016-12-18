@@ -20,7 +20,7 @@ func CamelToSnake(s string) string {
 	rs := []rune(s)
 
 	var r string
-	var lastWasLetter, lastWasIsm, isUpper, isLetter bool
+	var lastWasUpper, lastWasLetter, lastWasIsm, isUpper, isLetter bool
 	for i := 0; i < len(rs); {
 		isUpper = unicode.IsUpper(rs[i])
 		isLetter = unicode.IsLetter(rs[i])
@@ -28,19 +28,22 @@ func CamelToSnake(s string) string {
 		// append _ when last was not upper and not letter
 		if (lastWasLetter && isUpper) || (lastWasIsm && isLetter) {
 			r += "_"
-			lastWasIsm = false
 		}
 
 		// determine next to append to r
 		var next string
-		if ism := peekInitialism(rs[i:]); ism != "" {
+		if ism := peekInitialism(rs[i:]); ism != "" && (!lastWasUpper || lastWasIsm) {
 			next = ism
-			lastWasIsm = true
 		} else {
 			next = string(rs[i])
-			lastWasIsm = false
 		}
 
+		lastWasIsm = false
+		if len(next) > 1 {
+			lastWasIsm = true
+		}
+
+		lastWasUpper = isUpper
 		lastWasLetter = isLetter
 
 		r += next
@@ -48,6 +51,11 @@ func CamelToSnake(s string) string {
 	}
 
 	return strings.ToLower(r)
+}
+
+// CamelToSnakeIdentifier converts s to its snake_case identifier.
+func CamelToSnakeIdentifier(s string) string {
+	return toIdentifier(CamelToSnake(s))
 }
 
 // SnakeToCamel converts s to CamelCase.
@@ -70,27 +78,8 @@ func SnakeToCamel(s string) string {
 	return r
 }
 
-// SnakeToGoIdentifier converts s into a Go safe identifier (first letter will
-// be capitalized).
-func SnakeToGoIdentifier(s string) string {
-	// replace bad chars with _
-	s = replaceBadChars(s)
-
-	// fix 2 or more __
-	s = underscoreRE.ReplaceAllString(s, "_")
-
-	// remove leading/trailing underscores
-	s = strings.TrimLeft(s, "_")
-	s = strings.TrimRight(s, "_")
-
-	// convert to camel
-	s = SnakeToCamel(s)
-
-	// remove leading numbers
-	s = numberRE.ReplaceAllString(s, "_")
-	if s == "" {
-		s = "_"
-	}
-
-	return s
+// SnakeToCamelIdentifier converts s to its CamelCase identifier (first
+// letter is capitalized).
+func SnakeToCamelIdentifier(s string) string {
+	return SnakeToCamel(toIdentifier(s))
 }

@@ -2,6 +2,7 @@ package snaker
 
 import (
 	"regexp"
+	"strings"
 	"unicode"
 )
 
@@ -83,5 +84,21 @@ func replaceBadChars(s string) string {
 // underscoreRE matches underscores.
 var underscoreRE = regexp.MustCompile(`_+`)
 
-// numberRE matches leading numbers.
-var numberRE = regexp.MustCompile(`^[0-9]+`)
+// leadingRE matches leading numbers.
+var leadingRE = regexp.MustCompile(`^[0-9_]+`)
+
+// toIdentifier cleans up a string so that it is usable as an identifier.
+func toIdentifier(s string) string {
+	// replace bad chars with _
+	s = replaceBadChars(strings.TrimSpace(s))
+
+	// fix 2 or more __ and remove leading numbers/underscores
+	s = underscoreRE.ReplaceAllString(s, "_")
+	s = leadingRE.ReplaceAllString(s, "_")
+
+	// remove leading/trailing underscores
+	s = strings.TrimLeft(s, "_")
+	s = strings.TrimRight(s, "_")
+
+	return s
+}
