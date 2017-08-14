@@ -32,4 +32,4 @@ $(sed '/{/{:1; /}/!{N; b1}; /var commonInitialisms/p}; d' $PKGPATH/lint.go)"
 
 echo "$DATA" > $OUT
 
-gofmt -w $OUT
+gofmt -w -s $OUT
