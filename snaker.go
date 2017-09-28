@@ -96,3 +96,9 @@ func AddInitialisms(initialisms ...string) error {
 
 	return nil
 }
+
+// IsInitialism indicates whether or not an initialism is registered as an
+// identified initialism.
+func IsInitialism(initialism string) bool {
+	return commonInitialisms[strings.ToUpper(initialism)]
+}
