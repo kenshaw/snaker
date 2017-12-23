@@ -85,6 +85,29 @@ func SnakeToCamelIdentifier(s string) string {
 	return SnakeToCamel(toIdentifier(s))
 }
 
+// ForceCamelIdentifier forces CamelCase specific to Go.
+func ForceCamelIdentifier(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	return SnakeToCamelIdentifier(CamelToSnake(s))
+}
+
+// ForceLowerCamelIdentifier forces the first portion of an identifier to be
+// lower case.
+func ForceLowerCamelIdentifier(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	s = CamelToSnake(s)
+	first := strings.SplitN(s, "_", -1)[0]
+	s = SnakeToCamelIdentifier(s)
+
+	return strings.ToLower(first) + s[len(first):]
+}
+
 // AddInitialisms adds initialisms to the recognized initialisms.
 func AddInitialisms(initialisms ...string) error {
 	for _, s := range initialisms {
