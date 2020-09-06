@@ -4,7 +4,7 @@ package snaker
 
 // commonInitialisms is the set of commonInitialisms.
 //
-// taken from: github.com/golang/lint @ c5fb716
+// taken from: golang.org/x/lint @ 738671d
 var commonInitialisms = map[string]bool{
 	"ACL":   true,
 	"API":   true,

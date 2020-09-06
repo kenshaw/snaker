@@ -4,19 +4,21 @@
 
 SRC=$(realpath $(cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd ))
 
-PKG="github.com/golang/lint"
-
+PKG="golang.org/x/lint"
+PKGPATH="$(go env GOPATH)/src/$PKG"
 OUT=$SRC/initialisms.go
 
 set -e
 
 # get latest revision
 if [ "$1" == "--update" ]; then
-	go get -u $PKG
+  pushd $PKGPATH &> /dev/null
+  git reset --hard
+  git pull
+  popd &> /dev/null
 fi
 
 # get git rev info
-PKGPATH="$(go env GOPATH)/src/$PKG"
 pushd $PKGPATH &> /dev/null
 PKGVER=$(git rev-parse --short master)
 popd &> /dev/null
