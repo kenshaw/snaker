@@ -19,7 +19,6 @@ func min(a, b int) int {
 	if a < b {
 		return a
 	}
-
 	return b
 }
 
@@ -51,7 +50,6 @@ func peekInitialism(rs []rune) string {
 			return r
 		}
 	}
-
 	return ""
 }
 
@@ -75,7 +73,6 @@ func replaceBadChars(s string) string {
 			r = append(r, '_')
 		}
 	}
-
 	return string(r)
 }
 
@@ -97,6 +94,5 @@ func toIdentifier(s string) string {
 	// remove leading/trailing underscores
 	s = strings.TrimLeft(s, "_")
 	s = strings.TrimRight(s, "_")
-
 	return s
 }

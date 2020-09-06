@@ -3,7 +3,7 @@ package snaker
 import "testing"
 
 func TestCamelToSnake(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		s, exp string
 	}{
 		{"", ""},
@@ -41,17 +41,15 @@ func TestCamelToSnake(t *testing.T) {
 		{"UIDzUUIDUIDidUUID", "uid_z_uuid_uid_id_uuid"},
 		{"UIDzUUID-UIDidUUID", "uid_z_uuid-uid_id_uuid"},
 	}
-
 	for i, test := range tests {
-		v := CamelToSnake(test.s)
-		if v != test.exp {
+		if v := CamelToSnake(test.s); v != test.exp {
 			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
 }
 
 func TestCamelToSnakeIdentifier(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		s, exp string
 	}{
 		{"", ""},
@@ -89,17 +87,15 @@ func TestCamelToSnakeIdentifier(t *testing.T) {
 		{"UIDzUUIDUIDidUUID", "uid_z_uuid_uid_id_uuid"},
 		{"UIDzUUID-UIDidUUID", "uid_z_uuid_uid_id_uuid"},
 	}
-
 	for i, test := range tests {
-		v := CamelToSnakeIdentifier(test.s)
-		if v != test.exp {
+		if v := CamelToSnakeIdentifier(test.s); v != test.exp {
 			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
 }
 
 func TestSnakeToCamel(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		s, exp string
 	}{
 		{"", ""},
@@ -120,17 +116,15 @@ func TestSnakeToCamel(t *testing.T) {
 		{"gPU_info", "GpuInfo"},
 		{"g_p_u_info", "GPUInfo"},
 	}
-
 	for i, test := range tests {
-		v := SnakeToCamel(test.s)
-		if v != test.exp {
+		if v := SnakeToCamel(test.s); v != test.exp {
 			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
 }
 
 func TestSnakeToCamelIdentifier(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		s, exp string
 	}{
 		{"", ""},
@@ -165,10 +159,8 @@ func TestSnakeToCamelIdentifier(t *testing.T) {
 		{"gpu_info", "GpuInfo"},
 		{"g_p_u_info", "GPUInfo"},
 	}
-
 	for i, test := range tests {
-		v := SnakeToCamelIdentifier(test.s)
-		if v != test.exp {
+		if v := SnakeToCamelIdentifier(test.s); v != test.exp {
 			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
 		}
 	}
