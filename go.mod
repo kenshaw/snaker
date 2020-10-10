@@ -1,3 +1,3 @@
-module github.com/knq/snaker
+module github.com/kenshaw/snaker
 
-go 1.13
+go 1.15
