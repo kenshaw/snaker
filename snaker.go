@@ -18,14 +18,14 @@ func CamelToSnake(s string) string {
 		return ""
 	}
 	rs := []rune(s)
-	var r string
+	var r strings.Builder
 	var lastWasUpper, lastWasLetter, lastWasIsm, isUpper, isLetter bool
 	for i := 0; i < len(rs); {
 		isUpper, isLetter = unicode.IsUpper(rs[i]), unicode.IsLetter(rs[i])
 
 		// append _ when last was not upper and not letter
 		if (lastWasLetter && isUpper) || (lastWasIsm && isLetter) {
-			r += "_"
+			r.WriteString("_")
 		}
 
 		// determine next to append to r
@@ -39,10 +39,10 @@ func CamelToSnake(s string) string {
 		// save for next iteration
 		lastWasIsm = len(next) > 1
 		lastWasUpper, lastWasLetter = isUpper, isLetter
-		r += next
+		r.WriteString(next)
 		i += len(next)
 	}
-	return strings.ToLower(r)
+	return strings.ToLower(r.String())
 }
 
 // CamelToSnakeIdentifier converts s to its snake_case identifier.
@@ -52,19 +52,19 @@ func CamelToSnakeIdentifier(s string) string {
 
 // SnakeToCamel converts s to CamelCase.
 func SnakeToCamel(s string) string {
-	var r string
+	var r strings.Builder
 	for _, w := range strings.Split(s, "_") {
 		if w == "" {
 			continue
 		}
 		u := strings.ToUpper(w)
 		if ok := commonInitialisms[u]; ok {
-			r += u
+			r.WriteString(u)
 		} else {
-			r += strings.ToUpper(w[:1]) + strings.ToLower(w[1:])
+			r.WriteString(strings.ToUpper(w[:1]) + strings.ToLower(w[1:]))
 		}
 	}
-	return r
+	return r.String()
 }
 
 // SnakeToCamelIdentifier converts s to its CamelCase identifier (first
