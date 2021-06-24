@@ -43,7 +43,7 @@ func TestCamelToSnake(t *testing.T) {
 	}
 	for i, test := range tests {
 		if v := CamelToSnake(test.s); v != test.exp {
-			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
+			t.Errorf("test %d %q expected %q, got: %q", i, test.s, test.exp, v)
 		}
 	}
 }
@@ -89,7 +89,7 @@ func TestCamelToSnakeIdentifier(t *testing.T) {
 	}
 	for i, test := range tests {
 		if v := CamelToSnakeIdentifier(test.s); v != test.exp {
-			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
+			t.Errorf("test %d %q expected %q, got: %q", i, test.s, test.exp, v)
 		}
 	}
 }
@@ -118,7 +118,7 @@ func TestSnakeToCamel(t *testing.T) {
 	}
 	for i, test := range tests {
 		if v := SnakeToCamel(test.s); v != test.exp {
-			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
+			t.Errorf("test %d %q expected %q, got: %q", i, test.s, test.exp, v)
 		}
 	}
 }
@@ -161,7 +161,7 @@ func TestSnakeToCamelIdentifier(t *testing.T) {
 	}
 	for i, test := range tests {
 		if v := SnakeToCamelIdentifier(test.s); v != test.exp {
-			t.Errorf("test %d '%s' expected '%s', got: '%s'", i, test.s, test.exp, v)
+			t.Errorf("test %d %q expected %q, got: %q", i, test.s, test.exp, v)
 		}
 	}
 }
