@@ -237,4 +237,5 @@ var commonInitialisms = map[string]bool{
 	"XMPP":  true,
 	"XSRF":  true,
 	"XSS":   true,
+	"YAML":  true,
 }
