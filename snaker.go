@@ -94,10 +94,13 @@ func ForceLowerCamelIdentifier(name string) string {
 // AddInitialisms adds initialisms to the recognized initialisms.
 func AddInitialisms(initialisms ...string) error {
 	for _, s := range initialisms {
-		if len(s) < minInitialismLen || len(s) > maxInitialismLen {
-			return fmt.Errorf("%s does not have length between %d and %d", s, minInitialismLen, maxInitialismLen)
+		if len(s) < minInitialismLen {
+			return fmt.Errorf("%q must have length of at least %d", s, minInitialismLen)
 		}
-		commonInitialisms[s] = true
+		if len(s) > maxInitialismLen {
+			maxInitialismLen = len(s)
+		}
+		commonInitialisms[strings.ToUpper(s)] = true
 	}
 	return nil
 }
@@ -108,10 +111,12 @@ func IsInitialism(initialism string) bool {
 	return commonInitialisms[strings.ToUpper(initialism)]
 }
 
-const (
+var (
 	// minInitialismLen is the min length of any of the commonInitialisms.
 	minInitialismLen = 2
-	// maxInitialismLen is the max length of any of the commonInitialisms.
+	// maxInitialismLen is the default max length of any of the commonInitialisms.
+	// if  an initialism is added with a greater length; maxInitialismLen is
+	// increased.
 	maxInitialismLen = 5
 )
 
