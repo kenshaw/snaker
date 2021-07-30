@@ -1,7 +1,7 @@
 // Package snaker provides methods to convert CamelCase to and from snake_case.
 //
-// snaker takes into takes into consideration common initialisms (ie, ID, HTTP,
-// ACL, etc) when converting to/from CamelCase and snake_case.
+// Correctly recognizes common (Go idiomatic) initialisms (HTTP, XML, etc) and
+// provides a mechanism to override/set recognized initialisms.
 package snaker
 
 import (
