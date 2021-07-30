@@ -5,185 +5,134 @@
 package snaker
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
 )
 
+func init() {
+	// initialize common default initialisms.
+	DefaultInitialisms, _ = New(CommonInitialisms()...)
+}
+
+// CommonInitialisms returns the set of common initialisms.
+//
+// Originally built from the list in golang.org/x/lint @ 738671d.
+//
+// Note: golang.org/x/lint has since been deprecated, and some additional
+// initialisms have since been added.
+func CommonInitialisms() []string {
+	return []string{
+		"ACL",
+		"API",
+		"ASCII",
+		"CPU",
+		"CSS",
+		"DNS",
+		"EOF",
+		"GUID",
+		"HTML",
+		"HTTPS",
+		"HTTP",
+		"ID",
+		"IP",
+		"JSON",
+		"LHS",
+		"QPS",
+		"RAM",
+		"RHS",
+		"RPC",
+		"SLA",
+		"SMTP",
+		"SQL",
+		"SSH",
+		"TCP",
+		"TLS",
+		"TTL",
+		"UDP",
+		"UID",
+		"UI",
+		"URI",
+		"URL",
+		"UTC",
+		"UTF8",
+		"UUID",
+		"VM",
+		"XML",
+		"XMPP",
+		"XSRF",
+		"XSS",
+		"YAML",
+	}
+}
+
+// DefaultInitialisms is a set of default (common) initialisms.
+var DefaultInitialisms *Initialisms
+
 // CamelToSnake converts name from camel case ("AnIdentifier") to snake case
 // ("an_identifier").
 func CamelToSnake(name string) string {
-	if name == "" {
-		return ""
-	}
-	s, r := "", []rune(name)
-	var lastWasUpper, lastWasLetter, lastWasIsm, isUpper, isLetter bool
-	for i := 0; i < len(r); {
-		isUpper, isLetter = unicode.IsUpper(r[i]), unicode.IsLetter(r[i])
-		// append _ when last was not upper and not letter
-		if (lastWasLetter && isUpper) || (lastWasIsm && isLetter) {
-			s += "_"
-		}
-		// determine next to append to r
-		var next string
-		if ism := peekInitialism(r[i:]); ism != "" && (!lastWasUpper || lastWasIsm) {
-			next = ism
-		} else {
-			next = string(r[i])
-		}
-		// save for next iteration
-		lastWasIsm = len(next) > 1
-		lastWasUpper, lastWasLetter = isUpper, isLetter
-		s += next
-		i += len(next)
-	}
-	return strings.ToLower(s)
+	return DefaultInitialisms.CamelToSnake(name)
 }
 
 // CamelToSnakeIdentifier converts name from camel case to a snake case
 // identifier.
 func CamelToSnakeIdentifier(name string) string {
-	return toIdentifier(CamelToSnake(name))
+	return DefaultInitialisms.CamelToSnakeIdentifier(name)
 }
 
 // SnakeToCamel converts name to CamelCase.
 func SnakeToCamel(name string) string {
-	var s string
-	for _, word := range strings.Split(name, "_") {
-		if word == "" {
-			continue
-		}
-		u := strings.ToUpper(word)
-		if ok := commonInitialisms[u]; ok {
-			s += u
-		} else {
-			s += strings.ToUpper(word[:1]) + strings.ToLower(word[1:])
-		}
-	}
-	return s
+	return DefaultInitialisms.SnakeToCamel(name)
 }
 
 // SnakeToCamelIdentifier converts name to its CamelCase identifier (first
 // letter is capitalized).
 func SnakeToCamelIdentifier(name string) string {
-	return SnakeToCamel(toIdentifier(name))
+	return DefaultInitialisms.SnakeToCamelIdentifier(name)
 }
 
 // ForceCamelIdentifier forces name to its CamelCase specific to Go
 // ("AnIdentifier").
 func ForceCamelIdentifier(name string) string {
-	if name == "" {
-		return ""
-	}
-	return SnakeToCamelIdentifier(CamelToSnake(name))
+	return DefaultInitialisms.ForceCamelIdentifier(name)
 }
 
 // ForceLowerCamelIdentifier forces the first portion of an identifier to be
 // lower case ("anIdentifier").
 func ForceLowerCamelIdentifier(name string) string {
-	if name == "" {
-		return ""
-	}
-	name = CamelToSnake(name)
-	first := strings.SplitN(name, "_", -1)[0]
-	name = SnakeToCamelIdentifier(name)
-	return strings.ToLower(first) + name[len(first):]
+	return DefaultInitialisms.ForceLowerCamelIdentifier(name)
 }
 
-// AddInitialisms adds initialisms to the recognized initialisms.
-func AddInitialisms(initialisms ...string) error {
-	for _, s := range initialisms {
-		if len(s) < minInitialismLen || len(s) > maxInitialismLen {
-			return fmt.Errorf("%s does not have length between %d and %d", s, minInitialismLen, maxInitialismLen)
-		}
-		commonInitialisms[s] = true
-	}
-	return nil
+// Peek returns the next longest possible initialism in r.
+func Peek(r []rune) string {
+	return DefaultInitialisms.Peek(r)
 }
 
-// IsInitialism indicates whether or not an initialism is registered as an
-// identified initialism.
-func IsInitialism(initialism string) bool {
-	return commonInitialisms[strings.ToUpper(initialism)]
+// IsInitialism indicates whether or not s is a registered initialism.
+func IsInitialism(s string) bool {
+	return DefaultInitialisms.IsInitialism(s)
 }
 
-const (
-	// minInitialismLen is the min length of any of the commonInitialisms.
-	minInitialismLen = 2
-	// maxInitialismLen is the max length of any of the commonInitialisms.
-	maxInitialismLen = 5
-)
-
-// min returns the minimum of a, b.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-// peekInitialism returns the next longest possible initialism in r.
-func peekInitialism(r []rune) string {
-	// do no work
-	if len(r) < minInitialismLen {
-		return ""
-	}
-	// grab at most next maxInitialismLen uppercase characters
-	l := min(len(r), maxInitialismLen)
-	var z []rune
-	for i := 0; i < l; i++ {
-		if !unicode.IsUpper(r[i]) {
-			break
-		}
-		z = append(z, r[i])
-	}
-	// bail if next few characters were not uppercase.
-	if len(z) < minInitialismLen {
-		return ""
-	}
-	// determine if common initialism
-	for i := min(maxInitialismLen, len(z)); i >= minInitialismLen; i-- {
-		if r := string(z[:i]); commonInitialisms[r] {
-			return r
-		}
-	}
-	return ""
-}
-
-// isIdentifierChar determines if ch is a valid character for a Go identifier.
+// IsIdentifierChar determines if ch is a valid character for a Go identifier.
 //
-// see: go/src/go/scanner/scanner.go
-func isIdentifierChar(ch rune) bool {
+// See: go/src/go/scanner/scanner.go
+func IsIdentifierChar(ch rune) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
 		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)
 }
 
-// replaceBadChars strips characters and character sequences that are invalid
-// characters for Go identifiers.
-func replaceBadChars(s string) string {
-	// strip bad characters
-	var r []rune
-	for _, c := range s {
-		if isIdentifierChar(c) {
-			r = append(r, c)
-		} else {
-			r = append(r, '_')
-		}
-	}
-	return string(r)
-}
-
-// underscoreRE matches underscores.
-var underscoreRE = regexp.MustCompile(`_+`)
-
-// leadingRE matches leading numbers.
-var leadingRE = regexp.MustCompile(`^[0-9_]+`)
-
-// toIdentifier cleans up a string so that it is usable as an identifier.
-func toIdentifier(s string) string {
+// ToIdentifier cleans s so that it is usable as an identifier.
+//
+// Substitutes invalid characters with an underscore, removes any leading
+// numbers/underscores, and removes trailing underscores.
+//
+// Additionally collapses multiple underscores to a single underscore.
+//
+// Makes no changes to case.
+func ToIdentifier(s string) string {
 	// replace bad chars with _
-	s = replaceBadChars(strings.TrimSpace(s))
+	s = subUnderscores(strings.TrimSpace(s))
 	// fix 2 or more __ and remove leading numbers/underscores
 	s = underscoreRE.ReplaceAllString(s, "_")
 	s = leadingRE.ReplaceAllString(s, "_")
@@ -193,49 +142,22 @@ func toIdentifier(s string) string {
 	return s
 }
 
-// commonInitialisms is the set of commonInitialisms.
-//
-// Originally built from the list in golang.org/x/lint @ 738671d, however
-// golang.org/x/lint has since been deprecated.
-var commonInitialisms = map[string]bool{
-	"ACL":   true,
-	"API":   true,
-	"ASCII": true,
-	"CPU":   true,
-	"CSS":   true,
-	"DNS":   true,
-	"EOF":   true,
-	"GUID":  true,
-	"HTML":  true,
-	"HTTPS": true,
-	"HTTP":  true,
-	"ID":    true,
-	"IP":    true,
-	"JSON":  true,
-	"LHS":   true,
-	"QPS":   true,
-	"RAM":   true,
-	"RHS":   true,
-	"RPC":   true,
-	"SLA":   true,
-	"SMTP":  true,
-	"SQL":   true,
-	"SSH":   true,
-	"TCP":   true,
-	"TLS":   true,
-	"TTL":   true,
-	"UDP":   true,
-	"UID":   true,
-	"UI":    true,
-	"URI":   true,
-	"URL":   true,
-	"UTC":   true,
-	"UTF8":  true,
-	"UUID":  true,
-	"VM":    true,
-	"XML":   true,
-	"XMPP":  true,
-	"XSRF":  true,
-	"XSS":   true,
-	"YAML":  true,
+// underscoreRE matches underscores.
+var underscoreRE = regexp.MustCompile(`_+`)
+
+// leadingRE matches leading numbers.
+var leadingRE = regexp.MustCompile(`^[0-9_]+`)
+
+// subUnderscores substitues underscrose in place of runes that are invalid for
+// Go identifiers.
+func subUnderscores(s string) string {
+	var r []rune
+	for _, c := range s {
+		if IsIdentifierChar(c) {
+			r = append(r, c)
+		} else {
+			r = append(r, '_')
+		}
+	}
+	return string(r)
 }
