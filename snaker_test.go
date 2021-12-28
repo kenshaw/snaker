@@ -40,6 +40,9 @@ func TestCamelToSnake(t *testing.T) {
 		{"UIDzuuidUIDIDUUID", "uid_zuuid_uid_id_uuid"},
 		{"UIDzUUIDUIDidUUID", "uid_z_uuid_uid_id_uuid"},
 		{"UIDzUUID-UIDidUUID", "uid_z_uuid-uid_id_uuid"},
+		{"sampleIDs", "sample_ids"},
+		{"someUUIDs", "some_uuids"},
+		{"SLAsample", "sla_sample"},
 	}
 	for i, test := range tests {
 		if v := CamelToSnake(test.s); v != test.exp {

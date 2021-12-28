@@ -45,7 +45,16 @@ func (ini *Initialisms) CamelToSnake(name string) string {
 	for i := 0; i < len(r); {
 		isUpper, isLetter = unicode.IsUpper(r[i]), unicode.IsLetter(r[i])
 		// append _ when last was not upper and not letter
-		if (lastWasLetter && isUpper) || (lastWasIsm && isLetter) {
+		switch {
+		case lastWasLetter && isUpper:
+			s += "_"
+		case lastWasIsm && isLetter:
+			// UUIDs should be converted to uuids but
+			// SLAsample should still remain sla_sample.
+			hasFurtherChar := len(r) > i+1 && unicode.IsLetter(r[i+1]) && !unicode.IsUpper(r[i+1])
+			if r[i] == 's' && !hasFurtherChar {
+				break
+			}
 			s += "_"
 		}
 		// determine next to append to r
