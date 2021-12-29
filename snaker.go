@@ -12,7 +12,7 @@ import (
 
 func init() {
 	// initialize common default initialisms.
-	DefaultInitialisms, _ = New(CommonInitialisms()...)
+	DefaultInitialisms = NewDefaultInitialisms()
 }
 
 // CommonInitialisms returns the set of common initialisms.

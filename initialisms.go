@@ -8,14 +8,16 @@ import (
 
 // Initialisms is a set of initialisms.
 type Initialisms struct {
-	m   map[string]bool
+	m   map[string]string
+	p   map[string]string
 	max int
 }
 
 // New creates a new set of initialisms.
 func New(initialisms ...string) (*Initialisms, error) {
 	ini := &Initialisms{
-		m: make(map[string]bool),
+		m: make(map[string]string),
+		p: make(map[string]string),
 	}
 	if err := ini.Add(initialisms...); err != nil {
 		return nil, err
@@ -23,13 +25,43 @@ func New(initialisms ...string) (*Initialisms, error) {
 	return ini, nil
 }
 
+// NewDefaultInitialisms creates a default set of initialisms.
+func NewDefaultInitialisms() *Initialisms {
+	ini, err := New(CommonInitialisms()...)
+	if err != nil {
+		panic(err)
+	}
+	if err := ini.Post("IDS", "IDs"); err != nil {
+		panic(err)
+	}
+	return ini
+}
+
 // Add adds initialisms.
 func (ini *Initialisms) Add(initialisms ...string) error {
 	for _, s := range initialisms {
+		s = strings.ToUpper(s)
 		if len(s) < 2 {
 			return fmt.Errorf("invalid initialism %q", s)
 		}
-		ini.m[s], ini.max = true, max(ini.max, len(s))
+		ini.m[s], ini.max = s, max(ini.max, len(s))
+	}
+	return nil
+}
+
+// Post adds a key, value pair to the initialisms and post map.
+func (ini *Initialisms) Post(pairs ...string) error {
+	if len(pairs)%2 != 0 {
+		return fmt.Errorf("invalid pairs length %d", len(pairs))
+	}
+	for i := 0; i < len(pairs); i += 2 {
+		s := strings.ToUpper(pairs[i])
+		if s != strings.ToUpper(pairs[i+1]) {
+			return fmt.Errorf("invalid pair %q, %q", pairs[i], pairs[i+1])
+		}
+		ini.m[s] = pairs[i+1]
+		ini.p[pairs[i+1]] = pairs[i+1]
+		ini.max = max(ini.max, len(s))
 	}
 	return nil
 }
@@ -76,8 +108,7 @@ func (ini *Initialisms) SnakeToCamel(name string) string {
 		if word == "" {
 			continue
 		}
-		u := strings.ToUpper(word)
-		if ok := ini.m[u]; ok {
+		if u, ok := ini.m[strings.ToUpper(word)]; ok {
 			s += u
 		} else {
 			s += strings.ToUpper(word[:1]) + strings.ToLower(word[1:])
@@ -123,7 +154,7 @@ func (ini *Initialisms) Peek(r []rune) string {
 	l := min(len(r), ini.max)
 	var z []rune
 	for i := 0; i < l; i++ {
-		if !unicode.IsUpper(r[i]) {
+		if !unicode.IsLetter(r[i]) {
 			break
 		}
 		z = append(z, r[i])
@@ -134,8 +165,12 @@ func (ini *Initialisms) Peek(r []rune) string {
 	}
 	// determine if common initialism
 	for i := min(ini.max, len(z)); i >= 2; i-- {
-		if r := string(z[:i]); ini.m[r] {
-			return r
+		r := string(z[:i])
+		if s, ok := ini.m[r]; ok {
+			return s
+		}
+		if s, ok := ini.p[r]; ok {
+			return s
 		}
 	}
 	return ""
@@ -143,7 +178,8 @@ func (ini *Initialisms) Peek(r []rune) string {
 
 // IsInitialism indicates whether or not s is a registered initialism.
 func (ini *Initialisms) IsInitialism(s string) bool {
-	return ini.m[strings.ToUpper(s)]
+	_, ok := ini.m[strings.ToUpper(s)]
+	return ok
 }
 
 // min returns the minimum of a, b.
