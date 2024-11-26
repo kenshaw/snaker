@@ -5,7 +5,6 @@
 package snaker
 
 import (
-	"regexp"
 	"strings"
 	"unicode"
 )
@@ -71,15 +70,19 @@ func IsInitialism(s string) bool {
 //
 // Makes no changes to case.
 func ToIdentifier(s string) string {
-	// replace bad chars with _
-	s = subUnderscores(strings.TrimSpace(s))
-	// fix 2 or more __ and remove leading numbers/underscores
-	s = underscoreRE.ReplaceAllString(s, "_")
-	s = leadingRE.ReplaceAllString(s, "_")
-	// remove leading/trailing underscores
-	s = strings.TrimLeft(s, "_")
-	s = strings.TrimRight(s, "_")
-	return s
+	return toIdent(s, '_')
+}
+
+// ToKebab changes s to kebab case.
+//
+// Substitutes invalid characters with a hyphen, removes any leading
+// numbers/hyphens, and removes trailing hyphens.
+//
+// Additionally collapses multiple hyphens to a single hyphen.
+//
+// Converts the string to lower case.
+func ToKebab(s string) string {
+	return strings.ToLower(toIdent(s, '-'))
 }
 
 // CommonInitialisms returns the set of common initialisms.
@@ -152,13 +155,28 @@ func CommonPlurals() []string {
 	}
 }
 
-// subUnderscores substitues underscrose in place of runes that are invalid for
+// toIdent converts s to a identifier.
+func toIdent(s string, c rune) string {
+	// replace bad chars with c, and compact multiple c to single
+	s = sub(strings.TrimSpace(s), c)
+	// remove leading numbers and c
+	s = strings.TrimLeftFunc(s, func(r rune) bool {
+		return unicode.IsNumber(r) || c == r
+	})
+	// remove trailing c
+	s = strings.TrimRightFunc(s, func(r rune) bool {
+		return c == r
+	})
+	return s
+}
+
+// sub substitues underscrose in place of runes that are invalid for
 // Go identifiers.
-func subUnderscores(s string) string {
+func sub(s string, c rune) string {
 	r := []rune(s)
-	for i, c := range r {
-		if !isIdentifierChar(c) {
-			r[i] = '_'
+	for i, ch := range r {
+		if !isIdentifierChar(ch) {
+			r[i] = c
 		}
 	}
 	return string(r)
@@ -171,10 +189,3 @@ func isIdentifierChar(ch rune) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
 		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)
 }
-
-var (
-	// underscoreRE matches underscores.
-	underscoreRE = regexp.MustCompile(`_+`)
-	// leadingRE matches leading numbers.
-	leadingRE = regexp.MustCompile(`^[0-9_]+`)
-)
