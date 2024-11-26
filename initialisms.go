@@ -161,7 +161,7 @@ func (ini *Initialisms) Peek(r []rune) string {
 	}
 	// determine if common initialism
 	var k string
-	for i = min(ini.max, i+1); i >= 2; i-- {
+	for i = min(ini.max, i+1, len(r)); i >= 2; i-- {
 		k = string(r[:i])
 		if s, ok := ini.known[k]; ok {
 			return s
