@@ -151,20 +151,17 @@ func (ini *Initialisms) Peek(r []rune) string {
 		return ""
 	}
 	// peek next few runes, up to max length of the largest known initialism
-	var v []rune
-	for i := range min(len(r), ini.max) {
-		if !unicode.IsLetter(r[i]) {
-			break
-		}
-		v = append(v, r[i])
+	var i int
+	for n := min(len(r), ini.max); i < n && unicode.IsLetter(r[i]); i++ {
 	}
 	// bail if next few characters were not uppercase.
-	if len(v) < 2 {
+	if i < 2 {
 		return ""
 	}
 	// determine if common initialism
-	for i := min(ini.max, len(v)); i >= 2; i-- {
-		k := string(v[:i])
+	var k string
+	for i = min(ini.max, i+1); i >= 2; i-- {
+		k = string(r[:i])
 		if s, ok := ini.known[k]; ok {
 			return s
 		}
