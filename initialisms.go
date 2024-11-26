@@ -31,7 +31,11 @@ func NewDefaultInitialisms() (*Initialisms, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := ini.Post("IDS", "IDs"); err != nil {
+	var pairs []string
+	for _, s := range CommonPlurals() {
+		pairs = append(pairs, s+"S", s+"s")
+	}
+	if err := ini.Post(pairs...); err != nil {
 		return nil, err
 	}
 	return ini, nil
@@ -169,8 +173,8 @@ func (ini *Initialisms) Peek(r []rune) string {
 	return ""
 }
 
-// IsInitialism indicates whether or not s is a registered initialism.
-func (ini *Initialisms) IsInitialism(s string) bool {
+// Is indicates whether or not s is a registered initialism.
+func (ini *Initialisms) Is(s string) bool {
 	_, ok := ini.known[strings.ToUpper(s)]
 	return ok
 }

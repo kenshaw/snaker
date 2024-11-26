@@ -10,67 +10,17 @@ import (
 	"unicode"
 )
 
+// DefaultInitialisms is the set of default (common) initialisms used by the
+// package level conversions funcs.
+var DefaultInitialisms *Initialisms
+
 func init() {
-	// initialize common default initialisms.
+	// initialize common default initialisms
 	var err error
 	if DefaultInitialisms, err = NewDefaultInitialisms(); err != nil {
 		panic(err)
 	}
 }
-
-// CommonInitialisms returns the set of common initialisms.
-//
-// Originally built from the list in golang.org/x/lint @ 738671d.
-//
-// Note: golang.org/x/lint has since been deprecated, and some additional
-// initialisms have since been added.
-func CommonInitialisms() []string {
-	return []string{
-		"ACL",
-		"API",
-		"ASCII",
-		"CPU",
-		"CSS",
-		"DNS",
-		"EOF",
-		"GUID",
-		"HTML",
-		"HTTPS",
-		"HTTP",
-		"ID",
-		"IP",
-		"JSON",
-		"LHS",
-		"QPS",
-		"RAM",
-		"RHS",
-		"RPC",
-		"SLA",
-		"SMTP",
-		"SQL",
-		"SSH",
-		"TCP",
-		"TLS",
-		"TTL",
-		"UDP",
-		"UID",
-		"UI",
-		"URI",
-		"URL",
-		"UTC",
-		"UTF8",
-		"UUID",
-		"VM",
-		"XML",
-		"XMPP",
-		"XSRF",
-		"XSS",
-		"YAML",
-	}
-}
-
-// DefaultInitialisms is a set of default (common) initialisms.
-var DefaultInitialisms *Initialisms
 
 // CamelToSnake converts name from camel case ("AnIdentifier") to snake case
 // ("an_identifier").
@@ -107,22 +57,9 @@ func ForceLowerCamelIdentifier(name string) string {
 	return DefaultInitialisms.ForceLowerCamelIdentifier(name)
 }
 
-// Peek returns the next longest possible initialism in r.
-func Peek(r []rune) string {
-	return DefaultInitialisms.Peek(r)
-}
-
 // IsInitialism indicates whether or not s is a registered initialism.
 func IsInitialism(s string) bool {
-	return DefaultInitialisms.IsInitialism(s)
-}
-
-// IsIdentifierChar determines if ch is a valid character for a Go identifier.
-//
-// See: go/src/go/scanner/scanner.go
-func IsIdentifierChar(ch rune) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
-		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)
+	return DefaultInitialisms.Is(s)
 }
 
 // ToIdentifier cleans s so that it is usable as an identifier.
@@ -145,20 +82,99 @@ func ToIdentifier(s string) string {
 	return s
 }
 
-// underscoreRE matches underscores.
-var underscoreRE = regexp.MustCompile(`_+`)
+// CommonInitialisms returns the set of common initialisms.
+//
+// Originally built from the list in golang.org/x/lint @ 738671d.
+//
+// Note: golang.org/x/lint has since been deprecated, and some additional
+// initialisms have since been added.
+func CommonInitialisms() []string {
+	return []string{
+		"ACL",
+		"API",
+		"ASCII",
+		"CPU",
+		"CSS",
+		"DNS",
+		"EOF",
+		"GPU",
+		"GUID",
+		"HTML",
+		"HTTP",
+		"HTTPS",
+		"ID",
+		"IP",
+		"JSON",
+		"LHS",
+		"QPS",
+		"RAM",
+		"RHS",
+		"RPC",
+		"SLA",
+		"SMTP",
+		"SQL",
+		"SSH",
+		"TCP",
+		"TLS",
+		"TTL",
+		"UDP",
+		"UI",
+		"UID",
+		"URI",
+		"URL",
+		"UTC",
+		"UTF8",
+		"UUID",
+		"VM",
+		"XML",
+		"XMPP",
+		"XSRF",
+		"XSS",
+		"YAML",
+	}
+}
 
-// leadingRE matches leading numbers.
-var leadingRE = regexp.MustCompile(`^[0-9_]+`)
+// CommonPlurals returns initialisms that have a common plural of s.
+func CommonPlurals() []string {
+	return []string{
+		"ACL",
+		"API",
+		"CPU",
+		"GPU",
+		"GUID",
+		"ID",
+		"IP",
+		"UID",
+		"URI",
+		"URL",
+		"UUID",
+		"VM",
+	}
+}
 
 // subUnderscores substitues underscrose in place of runes that are invalid for
 // Go identifiers.
 func subUnderscores(s string) string {
 	r := []rune(s)
 	for i, c := range r {
-		if !IsIdentifierChar(c) {
+		if !isIdentifierChar(c) {
 			r[i] = '_'
 		}
 	}
 	return string(r)
 }
+
+// isIdentifierChar determines if ch is a valid character for a Go identifier.
+//
+// See: go/src/go/scanner/scanner.go
+func isIdentifierChar(ch rune) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
+		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)
+}
+
+var (
+	// underscoreRE matches underscores.
+	underscoreRE = regexp.MustCompile(`_+`)
+	// leadingRE matches leading numbers.
+	leadingRE = regexp.MustCompile(`^[0-9_]+`)
+)
