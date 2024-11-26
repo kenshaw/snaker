@@ -72,16 +72,15 @@ func (ini *Initialisms) CamelToSnake(name string) string {
 	if name == "" {
 		return ""
 	}
-	s, r := "", []rune(name)
+	var s string
 	var wasUpper, wasLetter, wasIsm, isUpper, isLetter bool
-	for i := 0; i < len(r); {
+	for i, r, next := 0, []rune(name), ""; i < len(r); i, s = i+len(next), s+next {
 		isUpper, isLetter = unicode.IsUpper(r[i]), unicode.IsLetter(r[i])
 		// append _ when last was not upper and not letter
 		if (wasLetter && isUpper) || (wasIsm && isLetter) {
 			s += "_"
 		}
 		// determine next to append to r
-		var next string
 		if ism := ini.Peek(r[i:]); ism != "" && (!wasUpper || wasIsm) {
 			next = ism
 		} else {
@@ -89,8 +88,6 @@ func (ini *Initialisms) CamelToSnake(name string) string {
 		}
 		// save for next iteration
 		wasIsm, wasUpper, wasLetter = 1 < len(next), isUpper, isLetter
-		s += next
-		i += len(next)
 	}
 	return strings.ToLower(s)
 }
@@ -154,7 +151,7 @@ func (ini *Initialisms) Peek(r []rune) string {
 	var i int
 	for n := min(len(r), ini.max); i < n && unicode.IsLetter(r[i]); i++ {
 	}
-	// bail if next few characters were not uppercase.
+	// bail if not enough letters
 	if i < 2 {
 		return ""
 	}
