@@ -26,15 +26,15 @@ func New(initialisms ...string) (*Initialisms, error) {
 }
 
 // NewDefaultInitialisms creates a set of known, common initialisms.
-func NewDefaultInitialisms() *Initialisms {
+func NewDefaultInitialisms() (*Initialisms, error) {
 	ini, err := New(CommonInitialisms()...)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if err := ini.Post("IDS", "IDs"); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return ini
+	return ini, nil
 }
 
 // Add adds a known initialisms.

@@ -12,7 +12,10 @@ import (
 
 func init() {
 	// initialize common default initialisms.
-	DefaultInitialisms = NewDefaultInitialisms()
+	var err error
+	if DefaultInitialisms, err = NewDefaultInitialisms(); err != nil {
+		panic(err)
+	}
 }
 
 // CommonInitialisms returns the set of common initialisms.

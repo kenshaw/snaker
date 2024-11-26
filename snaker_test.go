@@ -43,11 +43,14 @@ func TestCamelToSnake(t *testing.T) {
 		{"UIDzuuidUIDIDUUID", "uid_zuuid_uid_id_uuid"},
 		{"UIDzUUIDUIDidUUID", "uid_z_uuid_uid_id_uuid"},
 		{"UIDzUUID-UIDidUUID", "uid_z_uuid-uid_id_uuid"},
+		{"sampleIDIDS", "sample_id_ids"},
 	}
-	for i, test := range tests {
-		if v := CamelToSnake(test.s); v != test.exp {
-			t.Errorf("test %d %q expected %q, got: %q", i, test.s, test.exp, v)
-		}
+	for _, test := range tests {
+		t.Run(test.s, func(t *testing.T) {
+			if v := CamelToSnake(test.s); v != test.exp {
+				t.Errorf("%q expected %q, got: %q", test.s, test.exp, v)
+			}
+		})
 	}
 }
 
@@ -91,6 +94,9 @@ func TestCamelToSnakeIdentifier(t *testing.T) {
 		{"UIDzuuidUIDIDUUID", "uid_zuuid_uid_id_uuid"},
 		{"UIDzUUIDUIDidUUID", "uid_z_uuid_uid_id_uuid"},
 		{"UIDzUUID-UIDidUUID", "uid_z_uuid_uid_id_uuid"},
+		{"SampleIDs", "sample_ids"},
+		{"SampleIDS", "sample_ids"},
+		{"SampleIDIDs", "sample_id_ids"},
 	}
 	for _, test := range tests {
 		t.Run(test.s, func(t *testing.T) {
@@ -123,6 +129,8 @@ func TestSnakeToCamel(t *testing.T) {
 		{"GPU_info", "GpuInfo"},
 		{"gPU_info", "GpuInfo"},
 		{"g_p_u_info", "GPUInfo"},
+		{"uuid_id_uuid", "UUIDIDUUID"},
+		{"sample_id_ids", "SampleIDIDs"},
 	}
 	for _, test := range tests {
 		t.Run(test.s, func(t *testing.T) {
@@ -171,6 +179,8 @@ func TestSnakeToCamelIdentifier(t *testing.T) {
 		{"_a_c_l_", "ACL"},
 		{"gpu_info", "GpuInfo"},
 		{"g_p_u_info", "GPUInfo"},
+		{"uuid_id_uuid", "UUIDIDUUID"},
+		{"sample_id_ids", "SampleIDIDs"},
 	}
 	for _, test := range tests {
 		t.Run(test.s, func(t *testing.T) {
