@@ -151,12 +151,10 @@ var leadingRE = regexp.MustCompile(`^[0-9_]+`)
 // subUnderscores substitues underscrose in place of runes that are invalid for
 // Go identifiers.
 func subUnderscores(s string) string {
-	var r []rune
-	for _, c := range s {
-		if IsIdentifierChar(c) {
-			r = append(r, c)
-		} else {
-			r = append(r, '_')
+	r := []rune(s)
+	for i, c := range r {
+		if !IsIdentifierChar(c) {
+			r[i] = '_'
 		}
 	}
 	return string(r)
