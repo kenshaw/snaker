@@ -1,0 +1,20 @@
+linters:
+  enable-all: true
+  disable:
+    - cyclop
+    - depguard
+    - dupl
+    - err113
+    - exhaustruct
+    - exportloopref
+    - gochecknoglobals
+    - gochecknoinits
+    - mnd
+    - nlreturn
+    - paralleltest
+    - prealloc
+    - revive
+    - testpackage
+    - varnamelen
+    - wastedassign
+    - wsl
