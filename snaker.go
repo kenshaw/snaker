@@ -152,7 +152,6 @@ func CommonPlurals() []string {
 		"IP",
 		"TSV",
 		"UID",
-		"UID",
 		"URI",
 		"URL",
 		"UUID",
